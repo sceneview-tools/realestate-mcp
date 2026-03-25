@@ -1,6 +1,6 @@
 {
   "name": "realestate-mcp",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "MCP server for real estate agents — 3D virtual tours, floor plans, property descriptions, and staging suggestions powered by AI",
   "type": "module",
   "main": "dist/index.js",
@@ -52,5 +52,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/thomasgorisse/realestate-mcp.git"
-  }
+  },
+  "mcpName": "io.github.ThomasGorisse/realestate-mcp"
 }
