@@ -1,0 +1,8 @@
+src/
+tests/
+vitest.config.ts
+tsconfig.json
+.gitignore
+.DS_Store
+.env
+.env.local

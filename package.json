@@ -1,0 +1,56 @@
+{
+  "name": "realestate-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for real estate agents — 3D virtual tours, floor plans, property descriptions, and staging suggestions powered by AI",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "realestate-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "server.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "real-estate",
+    "virtual-tour",
+    "floor-plan",
+    "3d",
+    "property",
+    "ai",
+    "model-context-protocol",
+    "staging",
+    "visualization"
+  ],
+  "author": "Thomas Gorisse",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2",
+    "tsx": "^4.19.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thomasgorisse/realestate-mcp.git"
+  }
+}

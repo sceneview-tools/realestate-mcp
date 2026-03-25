@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/servers/main/schema/server.json",
+  "name": "realestate-mcp",
+  "description": "MCP server for real estate agents — 3D virtual tours, SVG floor plans, AI property descriptions, staging suggestions, neighborhood analysis, and 3D model previews.",
+  "version": "1.0.0",
+  "author": "Thomas Gorisse",
+  "license": "MIT",
+  "repository": "https://github.com/thomasgorisse/realestate-mcp",
+  "transport": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["realestate-mcp"]
+  },
+  "tools": [
+    {
+      "name": "generate_floor_plan",
+      "description": "Generate an SVG floor plan from room dimensions and types"
+    },
+    {
+      "name": "create_virtual_tour",
+      "description": "Create an embeddable 3D virtual tour from room descriptions and photos"
+    },
+    {
+      "name": "property_description",
+      "description": "Generate optimized property listing descriptions for MLS, social media, luxury, and investor audiences"
+    },
+    {
+      "name": "staging_suggestions",
+      "description": "Suggest virtual staging options — furniture, decor, lighting, textiles, plants, and art with placement instructions"
+    },
+    {
+      "name": "neighborhood_analysis",
+      "description": "Generate a comprehensive neighborhood summary including walk score, schools, transit, demographics, safety, and market context"
+    },
+    {
+      "name": "render_property_preview",
+      "description": "Generate an embeddable 3D model-viewer HTML snippet with AR support"
+    }
+  ],
+  "categories": ["real-estate", "3d", "visualization", "ai"],
+  "pricing": {
+    "free": {
+      "requests": 50,
+      "period": "month"
+    },
+    "pro": {
+      "price": 19,
+      "currency": "USD",
+      "period": "month",
+      "requests": "unlimited"
+    }
+  }
+}
