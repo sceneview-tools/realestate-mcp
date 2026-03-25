@@ -1,5 +1,7 @@
 # realestate-mcp
 
+> **Disclaimer:** This tool provides estimates and suggestions for **informational purposes only**. It does not constitute professional real estate, legal, financial, tax, or architectural advice. Always consult a licensed real estate professional before making property decisions. All generated content (descriptions, floor plans, valuations, neighborhood data) must be verified independently. See [TERMS.md](./TERMS.md) and [PRIVACY.md](./PRIVACY.md).
+
 MCP server for real estate agents — 3D virtual tours, SVG floor plans, AI-optimized property descriptions, staging suggestions, neighborhood analysis, and 3D model previews.
 
 ## Tools
@@ -115,6 +117,12 @@ npm test
 npm run dev   # run with tsx (hot reload)
 ```
 
+## Legal
+
+- [LICENSE](./LICENSE) — MIT License
+- [TERMS.md](./TERMS.md) — Terms of Service
+- [PRIVACY.md](./PRIVACY.md) — Privacy Policy (no data collected)
+
 ## License
 
-MIT
+MIT — see [LICENSE](./LICENSE).

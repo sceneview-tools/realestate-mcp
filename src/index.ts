@@ -29,6 +29,16 @@ import { generateNeighborhoodAnalysis, type NeighborhoodInput } from "./tools/ne
 import { renderPropertyPreview, type PropertyPreviewInput } from "./tools/render-property-preview.js";
 
 // ---------------------------------------------------------------------------
+// Legal disclaimer
+// ---------------------------------------------------------------------------
+
+const DISCLAIMER = '\n\n---\n*Informational purposes only. Not professional real estate, legal, or financial advice. Consult a licensed professional. See [TERMS.md](https://github.com/thomasgorisse/realestate-mcp/blob/main/TERMS.md).*';
+
+function addDisclaimer(text: string): string {
+  return text + DISCLAIMER;
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -90,7 +100,7 @@ server.tool(
             2
           ),
         },
-        { type: "text", text: result.svg },
+        { type: "text", text: addDisclaimer(result.svg) },
       ],
     };
   }
@@ -143,7 +153,7 @@ server.tool(
             2
           ),
         },
-        { type: "text", text: result.embedHtml },
+        { type: "text", text: addDisclaimer(result.embedHtml) },
       ],
     };
   }
@@ -179,7 +189,7 @@ server.tool(
 
     const result = generatePropertyDescription(args as PropertyDescriptionInput);
     return {
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      content: [{ type: "text", text: addDisclaimer(JSON.stringify(result, null, 2)) }],
     };
   }
 );
@@ -216,7 +226,7 @@ server.tool(
 
     const result = generateStagingSuggestions(args as StagingInput);
     return {
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      content: [{ type: "text", text: addDisclaimer(JSON.stringify(result, null, 2)) }],
     };
   }
 );
@@ -247,7 +257,7 @@ server.tool(
 
     const result = generateNeighborhoodAnalysis(args as NeighborhoodInput);
     return {
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      content: [{ type: "text", text: addDisclaimer(JSON.stringify(result, null, 2)) }],
     };
   }
 );
@@ -307,7 +317,7 @@ server.tool(
             2
           ),
         },
-        { type: "text", text: result.embedHtml },
+        { type: "text", text: addDisclaimer(result.embedHtml) },
       ],
     };
   }
