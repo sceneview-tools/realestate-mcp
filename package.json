@@ -1,7 +1,7 @@
 {
   "name": "realestate-mcp",
-  "version": "1.0.5",
-  "description": "MCP server for real estate agents — 3D virtual tours, floor plans, property descriptions, and staging suggestions powered by AI",
+  "version": "2.0.0",
+  "description": "MCP server for real estate agents — floor plans, virtual tours, property descriptions (EN/FR), price estimation, property comparison, staging suggestions, neighborhood analysis, and 3D previews",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -33,7 +33,11 @@
     "ai",
     "model-context-protocol",
     "staging",
-    "visualization"
+    "visualization",
+    "price-estimation",
+    "property-comparison",
+    "multilingual",
+    "seo"
   ],
   "author": "SceneView Tools",
   "license": "MIT",

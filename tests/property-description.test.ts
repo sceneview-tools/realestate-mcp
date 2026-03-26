@@ -15,7 +15,6 @@ describe("generatePropertyDescription", () => {
 
   it("generates all 4 description variants", () => {
     const result = generatePropertyDescription(baseInput);
-
     expect(result.mls).toBeTruthy();
     expect(result.social).toBeTruthy();
     expect(result.luxury).toBeTruthy();
@@ -69,5 +68,70 @@ describe("generatePropertyDescription", () => {
     const result = generatePropertyDescription(baseInput);
     expect(result.social).toContain("NEW LISTING");
     expect(result.social).toContain("DM for details");
+  });
+
+  // --- v2.0 new tests ---
+
+  it("generates French descriptions when language is fr", () => {
+    const result = generatePropertyDescription({
+      ...baseInput,
+      language: "fr",
+    });
+    expect(result.language).toBe("fr");
+    expect(result.social).toContain("NOUVELLE ANNONCE");
+    expect(result.social).toContain("Contactez-nous");
+    expect(result.mls).toContain("propose");
+  });
+
+  it("generates SEO title and description", () => {
+    const result = generatePropertyDescription(baseInput);
+    expect(result.seoTitle).toBeTruthy();
+    expect(result.seoTitle.length).toBeLessThanOrEqual(70);
+    expect(result.seoDescription).toBeTruthy();
+    expect(result.seoDescription.length).toBeLessThanOrEqual(160);
+  });
+
+  it("generates JSON-LD structured data", () => {
+    const result = generatePropertyDescription(baseInput);
+    expect(result.jsonLd).toBeDefined();
+    expect((result.jsonLd as any)["@context"]).toBe("https://schema.org");
+    expect((result.jsonLd as any)["@type"]).toBe("RealEstateListing");
+    expect((result.jsonLd as any).numberOfBedrooms).toBe(3);
+  });
+
+  it("includes character counts for all variants", () => {
+    const result = generatePropertyDescription(baseInput);
+    expect(result.characterCounts).toBeDefined();
+    expect(result.characterCounts.mls).toBeGreaterThan(0);
+    expect(result.characterCounts.social).toBeGreaterThan(0);
+    expect(result.characterCounts.headline).toBeGreaterThan(0);
+  });
+
+  it("supports EUR currency", () => {
+    const result = generatePropertyDescription({
+      ...baseInput,
+      currency: "EUR",
+      price: 500000,
+    });
+    expect(result.mls).toContain("\u20AC");
+  });
+
+  it("supports square meters input", () => {
+    const result = generatePropertyDescription({
+      ...baseInput,
+      squareMeters: 150,
+      squareFootage: undefined,
+    });
+    expect(result.mls).toContain("150");
+    expect(result.mls).toContain("m\u00B2");
+  });
+
+  it("French description converts sqft to m2", () => {
+    const result = generatePropertyDescription({
+      ...baseInput,
+      language: "fr",
+    });
+    // 1800 sqft ~ 167 m2
+    expect(result.mls).toContain("m\u00B2");
   });
 });

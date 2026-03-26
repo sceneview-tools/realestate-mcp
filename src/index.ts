@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * realestate-mcp — MCP server for real estate agents.
+ * realestate-mcp v2.0.0 — MCP server for real estate agents.
  *
  * Tools:
  *   generate_floor_plan      — SVG floor plan from room dimensions
  *   create_virtual_tour      — Embeddable 3D virtual tour
- *   property_description     — AI-optimized listing descriptions
+ *   property_description     — AI-optimized listing descriptions (EN/FR)
  *   staging_suggestions      — Virtual staging recommendations
  *   neighborhood_analysis    — Neighborhood summary for an address
  *   render_property_preview  — 3D model-viewer embed
+ *   estimate_price           — Rough property price estimation
+ *   compare_properties       — Side-by-side property comparison
  *
  * Tiers:
  *   Free  — 50 requests/month
@@ -27,6 +29,8 @@ import { generatePropertyDescription, type PropertyDescriptionInput } from "./to
 import { generateStagingSuggestions, type StagingInput } from "./tools/staging-suggestions.js";
 import { generateNeighborhoodAnalysis, type NeighborhoodInput } from "./tools/neighborhood-analysis.js";
 import { renderPropertyPreview, type PropertyPreviewInput } from "./tools/render-property-preview.js";
+import { estimatePrice, type PriceEstimateInput } from "./tools/estimate-price.js";
+import { compareProperties, type ComparePropertiesInput } from "./tools/compare-properties.js";
 
 // ---------------------------------------------------------------------------
 // Legal disclaimer
@@ -58,7 +62,7 @@ function checkUsage(): { allowed: boolean; error?: string } {
 
 const server = new McpServer({
   name: "realestate-mcp",
-  version: "1.0.0",
+  version: "2.0.0",
 });
 
 // ---------------------------------------------------------------------------
@@ -67,7 +71,7 @@ const server = new McpServer({
 
 server.tool(
   "generate_floor_plan",
-  "Generate an SVG floor plan from room dimensions. Returns SVG markup, total area, and room count.",
+  "Generate an SVG floor plan from room dimensions. Returns SVG markup, total area (metric + imperial), room breakdown, legend, and scale bar.",
   {
     rooms: z.array(
       z.object({
@@ -75,13 +79,16 @@ server.tool(
         width: z.number().positive().describe("Room width in meters"),
         length: z.number().positive().describe("Room length in meters"),
         type: z
-          .enum(["bedroom", "bathroom", "kitchen", "living", "dining", "office", "hallway", "garage", "other"])
+          .enum(["bedroom", "bathroom", "kitchen", "living", "dining", "office", "hallway", "garage", "storage", "laundry", "balcony", "other"])
           .optional()
-          .describe("Room type for color coding"),
+          .describe("Room type for color coding and icons"),
       })
     ).min(1).describe("List of rooms with dimensions"),
     title: z.string().optional().describe("Floor plan title"),
     style: z.enum(["modern", "classic", "minimal"]).optional().describe("Visual style (default: modern)"),
+    showLegend: z.boolean().optional().describe("Show room type legend (default: true)"),
+    showScaleBar: z.boolean().optional().describe("Show scale bar (default: true)"),
+    unit: z.enum(["metric", "imperial"]).optional().describe("Measurement unit (default: metric)"),
   },
   async (args) => {
     const usage = checkUsage();
@@ -95,7 +102,12 @@ server.tool(
         {
           type: "text",
           text: JSON.stringify(
-            { totalArea: result.totalArea, roomCount: result.roomCount },
+            {
+              totalArea: result.totalArea,
+              totalAreaSqFt: result.totalAreaSqFt,
+              roomCount: result.roomCount,
+              rooms: result.rooms,
+            },
             null,
             2
           ),
@@ -112,7 +124,7 @@ server.tool(
 
 server.tool(
   "create_virtual_tour",
-  "Create an embeddable 3D virtual tour from room descriptions and photos. Returns HTML, manifest, and share URL.",
+  "Create an embeddable virtual tour from room descriptions and photos. Returns HTML with smooth transitions, fullscreen, keyboard/touch navigation, and progress bar.",
   {
     propertyName: z.string().describe("Property name or address for the tour"),
     address: z.string().optional().describe("Full property address"),
@@ -123,6 +135,10 @@ server.tool(
         photoUrls: z.array(z.string().url()).optional().describe("Photo URLs for this room"),
         features: z.array(z.string()).optional().describe("Notable features"),
         order: z.number().optional().describe("Display order"),
+        dimensions: z.object({
+          width: z.number().positive(),
+          length: z.number().positive(),
+        }).optional().describe("Room dimensions in meters"),
       })
     ).min(1).describe("Rooms in the tour"),
     branding: z.object({
@@ -130,7 +146,17 @@ server.tool(
       logo: z.string().url().optional().describe("Logo URL"),
       agentName: z.string().optional().describe("Agent name to display"),
       agentPhone: z.string().optional().describe("Agent phone number"),
+      agentEmail: z.string().optional().describe("Agent email"),
     }).optional().describe("Branding options"),
+    settings: z.object({
+      autoPlay: z.boolean().optional().describe("Auto-advance rooms"),
+      autoPlayInterval: z.number().optional().describe("Seconds between auto-advance (default: 8)"),
+      showProgressBar: z.boolean().optional().describe("Show progress bar (default: true)"),
+      showThumbnails: z.boolean().optional().describe("Show photo thumbnails (default: true)"),
+      enableFullscreen: z.boolean().optional().describe("Enable fullscreen button (default: true)"),
+      enableKeyboard: z.boolean().optional().describe("Enable keyboard navigation (default: true)"),
+      enableSwipe: z.boolean().optional().describe("Enable touch/swipe (default: true)"),
+    }).optional().describe("Tour settings"),
   },
   async (args) => {
     const usage = checkUsage();
@@ -147,7 +173,8 @@ server.tool(
             {
               tourId: result.tourId,
               shareUrl: result.shareUrl,
-              roomCount: result.manifest.rooms.length,
+              roomCount: result.roomCount,
+              totalPhotos: result.totalPhotos,
             },
             null,
             2
@@ -165,21 +192,25 @@ server.tool(
 
 server.tool(
   "property_description",
-  "Generate optimized property listing descriptions (MLS, social media, luxury, investor). Returns 4 variants plus headline and SEO keywords.",
+  "Generate optimized property listing descriptions in English or French. Returns MLS, social media, luxury, and investor variants plus headline, SEO title/description, JSON-LD structured data, and character counts.",
   {
     address: z.string().describe("Property address"),
     propertyType: z.enum(["house", "apartment", "condo", "townhouse", "land", "commercial"]).describe("Property type"),
     bedrooms: z.number().int().nonnegative().optional().describe("Number of bedrooms"),
     bathrooms: z.number().nonnegative().optional().describe("Number of bathrooms"),
     squareFootage: z.number().positive().optional().describe("Square footage"),
+    squareMeters: z.number().positive().optional().describe("Square meters"),
     lotSize: z.string().optional().describe("Lot size description, e.g. '0.25 acres'"),
     yearBuilt: z.number().int().optional().describe("Year built"),
-    price: z.number().positive().optional().describe("Listing price in USD"),
-    features: z.array(z.string()).optional().describe("Property features, e.g. ['Hardwood floors', 'Granite counters']"),
-    style: z.string().optional().describe("Architectural style, e.g. 'Colonial'"),
+    price: z.number().positive().optional().describe("Listing price"),
+    currency: z.enum(["USD", "EUR", "GBP", "CAD"]).optional().describe("Currency (default: USD)"),
+    features: z.array(z.string()).optional().describe("Property features"),
+    style: z.string().optional().describe("Architectural style"),
     condition: z.enum(["new", "renovated", "good", "needs-work"]).optional().describe("Property condition"),
     neighborhood: z.string().optional().describe("Neighborhood name"),
-    highlights: z.array(z.string()).optional().describe("Special highlights to emphasize"),
+    highlights: z.array(z.string()).optional().describe("Special highlights"),
+    language: z.enum(["en", "fr"]).optional().describe("Language: en (English) or fr (French). Default: en"),
+    targetAudience: z.enum(["general", "luxury", "investor", "first-time-buyer"]).optional().describe("Target audience"),
   },
   async (args) => {
     const usage = checkUsage();
@@ -318,6 +349,104 @@ server.tool(
           ),
         },
         { type: "text", text: addDisclaimer(result.embedHtml) },
+      ],
+    };
+  }
+);
+
+// ---------------------------------------------------------------------------
+// Tool: estimate_price
+// ---------------------------------------------------------------------------
+
+server.tool(
+  "estimate_price",
+  "Estimate a property's market value based on location, size, rooms, condition, and features. Returns price range, confidence level, price factors, and comparable sales. NOT a professional appraisal.",
+  {
+    address: z.string().describe("Property address"),
+    city: z.string().describe("City name"),
+    state: z.string().optional().describe("State/province"),
+    country: z.string().optional().describe("Country (for non-US properties)"),
+    propertyType: z.enum(["house", "apartment", "condo", "townhouse", "land", "commercial"]).describe("Property type"),
+    squareFootage: z.number().positive().optional().describe("Square footage"),
+    squareMeters: z.number().positive().optional().describe("Square meters"),
+    bedrooms: z.number().int().nonnegative().optional().describe("Number of bedrooms"),
+    bathrooms: z.number().nonnegative().optional().describe("Number of bathrooms"),
+    yearBuilt: z.number().int().optional().describe("Year built"),
+    condition: z.enum(["new", "renovated", "good", "needs-work"]).optional().describe("Property condition"),
+    lotSize: z.number().positive().optional().describe("Lot size in acres"),
+    features: z.array(z.string()).optional().describe("Property features (pool, garage, etc.)"),
+    currency: z.enum(["USD", "EUR", "GBP", "CAD"]).optional().describe("Currency (default: USD)"),
+  },
+  async (args) => {
+    const usage = checkUsage();
+    if (!usage.allowed) {
+      return { content: [{ type: "text", text: usage.error! }], isError: true };
+    }
+
+    const result = estimatePrice(args as PriceEstimateInput);
+    return {
+      content: [{ type: "text", text: addDisclaimer(JSON.stringify(result, null, 2)) }],
+    };
+  }
+);
+
+// ---------------------------------------------------------------------------
+// Tool: compare_properties
+// ---------------------------------------------------------------------------
+
+server.tool(
+  "compare_properties",
+  "Compare 2-5 properties side by side. Returns comparison table, weighted scores, pros/cons, and a recommendation. Output in Markdown and/or HTML.",
+  {
+    properties: z.array(
+      z.object({
+        name: z.string().describe("Short name for this property, e.g. 'Oak Street House'"),
+        address: z.string().describe("Property address"),
+        price: z.number().positive().describe("Listing price"),
+        propertyType: z.enum(["house", "apartment", "condo", "townhouse", "land", "commercial"]).optional(),
+        bedrooms: z.number().int().nonnegative().optional(),
+        bathrooms: z.number().nonnegative().optional(),
+        squareFootage: z.number().positive().optional(),
+        squareMeters: z.number().positive().optional(),
+        yearBuilt: z.number().int().optional(),
+        condition: z.enum(["new", "renovated", "good", "needs-work"]).optional(),
+        features: z.array(z.string()).optional(),
+        lotSize: z.string().optional(),
+        hoaFees: z.number().nonnegative().optional().describe("Monthly HOA fees"),
+        parkingSpaces: z.number().int().nonnegative().optional(),
+        neighborhood: z.string().optional(),
+      })
+    ).min(2).max(5).describe("Properties to compare (2-5)"),
+    priorities: z.array(
+      z.enum(["price", "size", "location", "condition", "bedrooms", "value"])
+    ).optional().describe("Scoring priorities (default: price, size, bedrooms, condition, value)"),
+    format: z.enum(["markdown", "html", "both"]).optional().describe("Output format (default: both)"),
+    currency: z.enum(["USD", "EUR", "GBP", "CAD"]).optional().describe("Currency (default: USD)"),
+  },
+  async (args) => {
+    const usage = checkUsage();
+    if (!usage.allowed) {
+      return { content: [{ type: "text", text: usage.error! }], isError: true };
+    }
+
+    const result = compareProperties(args as ComparePropertiesInput);
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify(
+            {
+              winner: result.winner,
+              winnerReason: result.winnerReason,
+              summary: result.summary,
+              scores: result.scores,
+              comparison: result.comparison,
+            },
+            null,
+            2
+          ),
+        },
+        { type: "text", text: addDisclaimer(result.markdown || result.html) },
       ],
     };
   }

@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ThomasGorisse/realestate-mcp",
-  "description": "Real estate MCP — 3D virtual tours, floor plans, staging, neighborhood analysis.",
+  "description": "Real estate MCP — floor plans, virtual tours, property descriptions (EN/FR), price estimation, property comparison, staging, neighborhood analysis, 3D previews. 8 tools for real estate agents.",
   "repository": {
     "url": "https://github.com/ThomasGorisse/realestate-mcp",
     "source": "github"
   },
-  "version": "1.0.1",
+  "version": "2.0.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "realestate-mcp",
-      "version": "1.0.1",
+      "version": "2.0.0",
       "transport": {
         "type": "stdio"
       }
