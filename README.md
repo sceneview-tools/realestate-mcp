@@ -1,5 +1,9 @@
 # realestate-mcp v2.0.0
 
+[![npm version](https://img.shields.io/npm/v/realestate-mcp)](https://www.npmjs.com/package/realestate-mcp)
+[![tests](https://img.shields.io/badge/tests-91%20passed-brightgreen)](#)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
+
 > **Disclaimer:** This tool provides estimates and suggestions for **informational purposes only**. It does not constitute professional real estate, legal, financial, tax, or architectural advice. Always consult a licensed real estate professional before making property decisions. All generated content (descriptions, floor plans, valuations, neighborhood data) must be verified independently. See [TERMS.md](./TERMS.md) and [PRIVACY.md](./PRIVACY.md).
 
 MCP server for real estate agents — 8 tools covering floor plans, virtual tours, property descriptions (EN/FR), price estimation, property comparison, staging suggestions, neighborhood analysis, and 3D previews.

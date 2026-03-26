@@ -53,9 +53,10 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "homepage": "https://github.com/sceneview/realestate-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thomasgorisse/realestate-mcp.git"
+    "url": "https://github.com/sceneview/realestate-mcp.git"
   },
-  "mcpName": "io.github.ThomasGorisse/realestate-mcp"
+  "mcpName": "io.github.sceneview/realestate-mcp"
 }
