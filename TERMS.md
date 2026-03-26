@@ -83,4 +83,4 @@ If any provision of these Terms is found unenforceable, the remaining provisions
 
 ## 13. Contact
 
-SceneView Tools — [https://github.com/sceneview/realestate-mcp](https://github.com/sceneview/realestate-mcp)
+SceneView Tools — [https://github.com/sceneview-tools/realestate-mcp](https://github.com/sceneview-tools/realestate-mcp)

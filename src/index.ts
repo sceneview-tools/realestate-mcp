@@ -36,7 +36,7 @@ import { compareProperties, type ComparePropertiesInput } from "./tools/compare-
 // Legal disclaimer
 // ---------------------------------------------------------------------------
 
-const DISCLAIMER = '\n\n---\n*Informational purposes only. Not professional real estate, legal, or financial advice. Consult a licensed professional. See [TERMS.md](https://github.com/sceneview/realestate-mcp/blob/main/TERMS.md).*';
+const DISCLAIMER = '\n\n---\n*Informational purposes only. Not professional real estate, legal, or financial advice. Consult a licensed professional. See [TERMS.md](https://github.com/sceneview-tools/realestate-mcp/blob/main/TERMS.md).*';
 
 function addDisclaimer(text: string): string {
   return text + DISCLAIMER;
