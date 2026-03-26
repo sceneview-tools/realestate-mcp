@@ -1,6 +1,6 @@
 {
   "name": "realestate-mcp",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "MCP server for real estate agents — floor plans, virtual tours, property descriptions (EN/FR), price estimation, property comparison, staging suggestions, neighborhood analysis, and 3D previews",
   "type": "module",
   "main": "dist/index.js",
